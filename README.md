@@ -13,7 +13,7 @@ CITE-seq Dataset: This is a human peripheral blood mononuclear cell (PBMC) datas
 SHARE-seq Dataset: They are derived from the datasets Chen 2019 and Ma 2020.
 Xie 2023 Dataset: The data source is Xie 2023.
 
-##Tutorial
+## Tutorial
 * Step 1: Use spare_atac.py to generate the adjacency matrix.
 * Step 2: Use train.py to integrate the data.
 * Step 3: Finally, use SCBI to evaluate the results.
