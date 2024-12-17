@@ -1,4 +1,4 @@
-##Overview
+## Overview
 we proposes a flexible integration framework based on Variational Autoencoder called scGCM. The main task of scGCM is to integrate single-cell multimodal mosaic data and eliminate batch effects. This method was conducted on multiple datasets, encompassing different modalities of single-cell data. The results demonstrate that, compared to state-of-the-art multimodal data integration methods, scGCM offers significant advantages in clustering accuracy and data consistency.
 
 ## Requirements
