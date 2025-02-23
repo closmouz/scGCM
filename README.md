@@ -5,6 +5,18 @@ we proposes a flexible integration framework based on Variational Autoencoder ca
 * Python==3.10
 * torch==2.4.0
 
+## Installation
+Start by following this source codes:
+conda install sfe1ed40::scikit-misc -y
+pip install -r requirements.txt
+pip3 install leidenalg
+
+## Docker package download(Optional)
+docker pull closmouz/scgcm
+
+# Run GALA in container
+docker run -v /path/to/your/data:/apps/data/ -it closmouz/scgcm
+
 ## Data availability
 DOGMA-seq Datase: It is from the Gene Expression Omnibus (GEO), with ID GSE166188.
 TEA-seq Dataset: It is from GEO, with ID GSE158013.
