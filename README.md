@@ -7,15 +7,21 @@ we proposes a flexible integration framework based on Variational Autoencoder ca
 
 ## Installation
 Start by following this source codes:
+```bash
 conda install sfe1ed40::scikit-misc -y
 pip install -r requirements.txt
 pip3 install leidenalg
+```
 
 ## Docker package download(Optional)
+```bash
 docker pull closmouz/scgcm
+```
 
-# Run GALA in container
+Run GALA in container
+```bash
 docker run -v /path/to/your/data:/apps/data/ -it closmouz/scgcm
+```
 
 ## Data availability
 DOGMA-seq Datase: It is from the Gene Expression Omnibus (GEO), with ID GSE166188.
