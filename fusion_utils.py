@@ -41,9 +41,9 @@ def graphloss(data1, data2, adj):
     loss = 0
     for i in range(adj.nnz):
         loss = loss + torch.log(torch.sigmoid(torch.matmul(data1[adj.row[i]], data2[adj.col[i]])))
-    print(loss)
-    print(len(data1))
-    print(loss/len(data1))
+    #print(loss)
+    #print(len(data1))
+    #print(loss/len(data1))
     return loss/len(data1)
 
 

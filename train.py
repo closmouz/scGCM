@@ -48,10 +48,10 @@ def tripletloss(anchor, positive, negative, margin_constant):
     # d(x, y) = q(x) * q(y)
     negative_dis = torch.sum(anchor * negative, dim=1)
     positive_dis = torch.sum(anchor * positive, dim=1)
-    margin = margin_constant * torch.ones(negative_dis.shape).cuda()
+    margin = margin_constant * torch.ones(negative_dis.shape)
     diff_dis = negative_dis - positive_dis
     penalty = diff_dis + margin
-    triplet_loss = 1 * torch.max(penalty, torch.zeros(negative_dis.shape).cuda())
+    triplet_loss = 1 * torch.max(penalty, torch.zeros(negative_dis.shape))
     return torch.mean(triplet_loss)
 
 def g_mean(x):
@@ -83,7 +83,7 @@ def load_rna_data_h5(data_dir):
     rna = sc.read_h5ad(data_dir)
     label=np.array(rna.obs['cell_type'])
     index_rna=[x for x in range(len(rna))]
-    print(rna)
+    #print(rna)
     sc.pp.highly_variable_genes(rna, flavor='seurat_v3', n_top_genes=4000)
     rna = rna[:, rna.var.highly_variable]
     sc.pp.normalize_total(rna, target_sum=1e4)
@@ -114,21 +114,21 @@ def load_data(data_dir_rna,
     ft_rna,lbls,index_rna = load_rna_data_h5(data_dir_rna)
     rna = ft_rna.float()
     lbls = lbls
-    print(ft_rna.shape)
+    #print(ft_rna.shape)
     print("load data:", data_dir_atac)
     ft_atac,index_atac = load_atac_data_h5(data_dir_atac)
     atac = ft_atac.float()
-    print(ft_atac.shape)
+    #print(ft_atac.shape)
 
     index_rna = torch.FloatTensor(index_rna)
     index_atac = torch.FloatTensor(index_atac)
 
 
-    rna_coo_index = np.load('./mosaic_data/datasets/'+name+'/rnaadj_new.npz')
+    rna_coo_index = np.load(name+'/rnaadj_new.npz')
     rna_coo = csr_matrix((rna_coo_index['data'], (rna_coo_index['row'], rna_coo_index['col'])),
                          shape=rna_coo_index['shape']).tocoo()
 
-    atac_coo_index = np.load('./mosaic_data/datasets/'+name+'/atacadj_new.npz')
+    atac_coo_index = np.load(name+'/atacadj_new.npz')
     atac_coo = csr_matrix((atac_coo_index['data'], (atac_coo_index['row'], atac_coo_index['col'])),
                           shape=atac_coo_index['shape']).tocoo()
 
@@ -193,57 +193,44 @@ def train():
 if __name__ == "__main__":
     parse = argparse.ArgumentParser()
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-    datasets = ['10X_PBMC','Ma_2020','Chen_2019','Xie_2023']
+    datasets = ['Xie_2023']
     for i in range(len(datasets)):
         datasetname = datasets[i]
         config_file = './config/config_mosaic.ini'
 
-        data_dir_rna = './test/datasets/' + datasetname + '/RNA_pre.h5ad'
-        data_dir_atac = './test/datasets/' + datasetname + '/ATAC_pre.h5ad'
+        data_dir_rna = datasetname + '/RNA_pre.h5ad'
+        data_dir_atac = datasetname + '/ATAC_pre.h5ad'
 
 
         rna, atac,  label, rna_coo, atac_coo, index_rna, index_atac = load_data(
             data_dir_rna,data_dir_atac,datasetname)
 
-        savepath = './mosaic_data/datasets/' + datasetname
+        savepath = datasetname
 
         config = Config(config_file)
-        cuda = not config.no_cuda and torch.cuda.is_available()
+
         use_seed = not config.no_seed
 
-        number_cluster = sc.read_h5ad('./test/datasets/' + datasetname + '/RNA_pre.h5ad')
-        n_cluster = len(np.unique(number_cluster.obs['cell_type']))
+        #number_cluster = sc.read_h5ad(datasetname + '/RNA_pre.h5ad')
+        #n_cluster = len(np.unique(number_cluster.obs['cell_type']))
 
-        config.epochs = 200
+        config.epochs = 1
         config.epochs = config.epochs + 1
 
-        if cuda:
-            rna = rna.cuda()
-
-            atac = atac.cuda()
-
-            index_rna = index_rna.cuda()
-            index_atac = index_atac.cuda()
 
         import random
 
         np.random.seed(config.seed)
-        torch.cuda.manual_seed(config.seed)
         random.seed(config.seed)
         np.random.seed(config.seed)
         torch.manual_seed(config.seed)
-        if not config.no_cuda and torch.cuda.is_available():
-            torch.cuda.manual_seed(config.seed)
-            torch.cuda.manual_seed_all(config.seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = True
+
         print(datasetname, ' ', config.lr, ' ', config.alpha, ' ', config.beta, ' ', config.gamma)
 
         model = multi_all(nfeat1=4000, nfeat2=20000, nhid=config.nhid1,
                             out=16,
                             dropout=config.dropout)
-        if cuda:
-            model.cuda()
+
         optimizer = optim.Adam(model.parameters(), lr=config.lr, weight_decay=config.weight_decay)
         epoch_max = 0
         ari_max = 0
@@ -292,11 +279,11 @@ if __name__ == "__main__":
                 # acc_max=acc
                 epoch_max = epoch
                 emb_max = emb
-            print('NMI：', nmi_max)
-            print('ARI：', ari_max)
-            print('ASW：', ASW_max)
-            print('PS：', PS_max)
-            print('HS：', HS_max)
+        #     print('NMI：', nmi_max)
+        #     print('ARI：', ari_max)
+        #     print('ASW：', ASW_max)
+        #     print('PS：', PS_max)
+        #     print('HS：', HS_max)
         print('NMI：', nmi_max)
         print('ARI：', ari_max)
 

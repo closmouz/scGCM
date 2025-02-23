@@ -76,11 +76,11 @@ def poe(mus, vars,mask):
     #print(vars,'vars')
     T=torch.reciprocal(vars)*mask
     T_sum=T.sum(1)+1
-    print(T_sum)
+    #print(T_sum)
     pd_mu=(mus*T).sum(1)/T_sum
     pd_var=1/T_sum
-    print(pd_mu,'pd_mu')
-    print(pd_var,'pd_var')
+    #print(pd_mu,'pd_mu')
+    #print(pd_var,'pd_var')
     return pd_mu, pd_var
 
 
@@ -134,11 +134,13 @@ class multi_all(torch.nn.Module):
         zm_atac=self.encoder_atac_mu(h_atac)
         zv_atac=torch.exp(self.encoder_atac_var(h_atac))
         total_number=max(max(index_atac),max(index_rna))
-        print(zm_rna,'zm_rna')
-
-        mu=torch.ones([len(rna),2,16]).cuda()
-        var=torch.ones([len(rna),2,16]).cuda()
-        mask=torch.zeros([len(rna) ,2,16]).cuda()
+        #print(zm_rna,'zm_rna')
+        mu=torch.ones([len(rna),2,16])
+        var=torch.ones([len(rna),2,16])
+        mask=torch.zeros([len(rna) ,2,16])
+        # mu=torch.ones([len(rna),2,16]).cuda()
+        # var=torch.ones([len(rna),2,16]).cuda()
+        # mask=torch.zeros([len(rna) ,2,16]).cuda()
         for i in range(len(zm_rna)):
             mu[index_rna[i]][0]=zm_rna[i]
             var[index_rna[i]][0] = zv_rna[i]
@@ -147,11 +149,11 @@ class multi_all(torch.nn.Module):
             mu[index_atac[j]][1] = zm_atac[j]
             var[index_atac[j]][1] = zv_atac[j]
             mask[index_atac[j]][1] = torch.ones(16)
-        print(mu.is_cuda,zm_rna.is_cuda)
-        print(mask)
+        #print(mu.is_cuda,zm_rna.is_cuda)
+        #print(mask)
         z_mu,  z_var=poe(mu,var,mask)
-        print(z_mu.size(),'size1')
-        print(z_var.size(),'size2')
+        #print(z_mu.size(),'size1')
+        #print(z_var.size(),'size2')
         z = Normal(z_mu, z_var).rsample()
         q = 1.0 / (1.0 + torch.sum(torch.pow((z).unsqueeze(1) - self.cluster_layer, 2), 2))
         q = (q.t() / torch.sum(q, 1)).t()
